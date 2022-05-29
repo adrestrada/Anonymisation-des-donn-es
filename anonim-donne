@@ -1,0 +1,154 @@
+# importer la librairie pandas
+import pandas as pd
+# charger les données contenues dans un fichiers csv se trouvant sur drive
+URL         = 'https://drive.google.com/file/d/1OsyrafDAXSsrlAGbgi3fT7S1-Aqs5HtC/view?usp=sharing'
+data_voyage = 'https://drive.google.com/uc?export=download&id='+URL.split('/')[-2]
+
+
+data = pd.read_csv(data_voyage)
+# créer une copie pour ne pas toucher au dataframe d'origine 
+df = data.copy()
+# Afficher le dataframe
+df
+Nom	Genre	Age	Siege	Ticket	Prix
+0	Elina	féminin	24	B106	F12178	475.99
+1	Henry	masculin	7	C217	P03213	219.99
+2	Samuel	masculin	36	C212	P03214	269.99
+3	Olivier	masculin	28	B110	H12165	449.99
+4	Marguerite	féminin	65	A009	01F014	868.99
+5	Joseph	masculin	48	A023	F01048	623.99
+6	Adam	masculin	25	C210	P03276	249.99
+7	Albert	masculin	58	B123	H12180	425.99
+8	Myriam	féminin	42	B132	H12195	412.99
+9	Manda	féminin	18	A027	F01054	599.99
+10	Pierre	masculin	38	A035	F01095	579.99
+Pratique 1: Suppression d'un attribut
+# Ici on a utilisé le inplace = True ce qui nous évite de réaffecter le tout dans un dataframe comme
+# on l'a vu dans la vidéo du cours.
+df.drop(columns = ["Nom"], axis = 1, inplace = True)
+Ici on a utilisé le inplace = True ce qui nous évite de réaffecter le tout dans un dataframe comme on l'a vu dans la vidéo du cours.A noter que la solution df = df.drop(columns = ["Nom"], axis = 1) est tout à fait correcte elle aussi.
+# Vérification: Afficher les cinq premières lignes
+df
+Genre	Age	Siege	Ticket	Prix
+0	féminin	24	B106	F12178	475.99
+1	masculin	7	C217	P03213	219.99
+2	masculin	36	C212	P03214	269.99
+3	masculin	28	B110	H12165	449.99
+4	féminin	65	A009	01F014	868.99
+5	masculin	48	A023	F01048	623.99
+6	masculin	25	C210	P03276	249.99
+7	masculin	58	B123	H12180	425.99
+8	féminin	42	B132	H12195	412.99
+9	féminin	18	A027	F01054	599.99
+10	masculin	38	A035	F01095	579.99
+Pratique 2: Technique de masquage
+Séries Siege et Tickets
+On note ici que:
+Tous les sièges de la classe A commencent avec A0.
+Tous les sièges de la classe B commencent avec B1.
+Tous les sièges de la classe C commencent avec C2.
+Le deuxième et troisième chiffre du ticket semblent indiquer la classe de confort A,B et C
+# On pourrait donc décider de garder que les deux derniers chiffres pour la serie Siege
+df["Siege"] = df["Siege"].map(lambda x: "**" + x[2:])
+df
+Genre	Age	Siege	Ticket	Prix
+0	féminin	24	**06	F12178	475.99
+1	masculin	7	**17	P03213	219.99
+2	masculin	36	**12	P03214	269.99
+3	masculin	28	**10	H12165	449.99
+4	féminin	65	**09	01F014	868.99
+5	masculin	48	**23	F01048	623.99
+6	masculin	25	**10	P03276	249.99
+7	masculin	58	**23	H12180	425.99
+8	féminin	42	**32	H12195	412.99
+9	féminin	18	**27	F01054	599.99
+10	masculin	38	**35	F01095	579.99
+# On pourrait décider de garder que les trois derniers chiffres pour la série Tickets
+df.Ticket = df.Ticket.map(lambda x: "***" + x[-3:])
+A titre indicatif:
+on peut appeler la série du dataframe avec df["Ticket"] ou bien df.Ticket, les deux notations sont équivalentes
+# Vérification: Afficher le dataframe 
+df
+Genre	Age	Siege	Ticket	Prix
+0	féminin	24	**06	***178	475.99
+1	masculin	7	**17	***213	219.99
+2	masculin	36	**12	***214	269.99
+3	masculin	28	**10	***165	449.99
+4	féminin	65	**09	***014	868.99
+5	masculin	48	**23	***048	623.99
+6	masculin	25	**10	***276	249.99
+7	masculin	58	**23	***180	425.99
+8	féminin	42	**32	***195	412.99
+9	féminin	18	**27	***054	599.99
+10	masculin	38	**35	***095	579.99
+Pratique 3: Suppression d'un enregistrement
+# Procéder à la suppression des lignes contenant le prix le plus élevé ainsi que le prix le plus bas. 
+condition = (df["Prix"] != df.Prix.max()) & (df["Prix"] != df.Prix.min())
+# Filtrer le dataframe pour ne garder que les éléments qui réalisent la condition
+df = df[condition]
+# Vérification: Afficher le dataframe
+df
+Genre	Age	Siege	Ticket	Prix
+0	féminin	24	**06	***178	475.99
+2	masculin	36	**12	***214	269.99
+3	masculin	28	**10	***165	449.99
+5	masculin	48	**23	***048	623.99
+6	masculin	25	**10	***276	249.99
+7	masculin	58	**23	***180	425.99
+8	féminin	42	**32	***195	412.99
+9	féminin	18	**27	***054	599.99
+10	masculin	38	**35	***095	579.99
+A titre indicatif:
+On voit que la colonne indexe a été touchée, on peut la réinitialiser avec la commande suivante :
+df.reset_index(drop=True, inplace=True)
+# reset index
+df = df.reset_index(drop=True)
+
+# Vérification: Afficher le dataframe
+df
+Genre	Age	Siege	Ticket	Prix
+0	féminin	24	**06	***178	475.99
+1	masculin	36	**12	***214	269.99
+2	masculin	28	**10	***165	449.99
+3	masculin	48	**23	***048	623.99
+4	masculin	25	**10	***276	249.99
+5	masculin	58	**23	***180	425.99
+6	féminin	42	**32	***195	412.99
+7	féminin	18	**27	***054	599.99
+8	masculin	38	**35	***095	579.99
+Pratique 4: Tecnique de Géneralisation
+La technique de généralisation consiste en la réduction de précision de la donnée sans trop perdre en information. Par exemple. Au lieu de parler de l’âge d’une personne (exp : 32ans), on parlera d’une catégorie d’âge, ainsi on perd un peu sur la précision mais on conserve l’information de la donnée contenue dans la catégorie (exp :adulte).
+Procéder à la généralisation de l’attribut "Age"
+Définir une fonction qui nous servira à catégoriser l'age
+def age_bins():
+    fct = lambda x: "<18" if  x < 18 else "18-30" if x < 31 else "31-50" if x < 51 else "> 50"
+    return fct
+# créer une nouvelle série catégorie age
+df["Age_bins"] = df["Age"].map(age_bins())
+df
+Genre	Age	Siege	Ticket	Prix	Age_bins
+0	féminin	24	**06	***178	475.99	18-30
+1	masculin	36	**12	***214	269.99	31-50
+2	masculin	28	**10	***165	449.99	18-30
+3	masculin	48	**23	***048	623.99	31-50
+4	masculin	25	**10	***276	249.99	18-30
+5	masculin	58	**23	***180	425.99	> 50
+6	féminin	42	**32	***195	412.99	31-50
+7	féminin	18	**27	***054	599.99	18-30
+8	masculin	38	**35	***095	579.99	31-50
+La fonction map va prendre chaque valeur de la série Age et la passer à notre fonction age_bins qui elle, nous retourne la catégorie selon la condition préalablement établie.
+On pourra par la suite supprimer la série Age
+# supprimer la série âge
+df.drop(columns = ["Age"], axis = 1, inplace = True)
+# Vérification: Afficher le dataframe
+df
+Genre	Siege	Ticket	Prix	Age_bins
+0	féminin	**06	***178	475.99	18-30
+1	masculin	**12	***214	269.99	31-50
+2	masculin	**10	***165	449.99	18-30
+3	masculin	**23	***048	623.99	31-50
+4	masculin	**10	***276	249.99	18-30
+5	masculin	**23	***180	425.99	> 50
+6	féminin	**32	***195	412.99	31-50
+7	féminin	**27	***054	599.99	18-30
+8	masculin	**35	***095	579.99	31-50
